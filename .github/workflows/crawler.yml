@@ -28,14 +28,16 @@ on:
     #
     # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     #
-    # 📝 修改运行时间：只改第一个数字（0-59），表示每小时第几分钟运行
-    # 📝 Change time: Only modify the first number (0-59) = minute of each hour
+    # 📝 运行时间（UTC）：cron 使用 UTC 时间
+    # 📝 Schedule uses UTC time
+    #   每天北京时间 08:00 = UTC 00:00
     #
     # 示例 / Examples:
+    #   "0 0 * * *"      → 每天北京时间 08:00 / Beijing 08:00 daily
     #   "15 * * * *"     → 每小时第15分钟 / minute 15 every hour
     #   "30 0-14 * * *"  → 北京时间 8:00-22:00 每小时第30分钟 / Beijing 8am-10pm
     #
-    - cron: "33 * * * *"
+    - cron: "0 0 * * *"
 
   workflow_dispatch:
 
@@ -44,7 +46,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   actions: write
 
 jobs:
@@ -168,6 +170,26 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           GITHUB_ACTIONS: true
         run: uv run python -m trendradar
+
+      # --------------------------------------------------------------------------------
+      # 📄 COMMIT REPORT / 提交报告回 master（让 GitHub Pages 自动更新）
+      # --------------------------------------------------------------------------------
+      # 爬虫会生成根目录 index.html（report/generator.py），提交后 GitHub Pages
+      # 检测到根目录 index.html 变化即自动部署。仅在内容有变化时提交，避免空提交。
+      # --------------------------------------------------------------------------------
+      - name: Commit report to master
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet HEAD -- index.html; then
+            echo "ℹ️ index.html 无变化，跳过提交"
+          else
+            git add index.html
+            git commit -m "chore: 更新热点报告 [skip ci]"
+            git push origin HEAD:master
+            echo "✅ 已提交并推送 index.html，GitHub Pages 将自动更新"
+          fi
 
       # --------------------------------------------------------------------------------
       # ☁️ CLOUDFLARE PAGES DEPLOY / 部署到 Cloudflare Pages（可选）
