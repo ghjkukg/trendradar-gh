@@ -6,8 +6,14 @@ name: Check In
 # 📌 操作方法 / How to use:
 #   1. 点击 "Run workflow" 按钮 / Click "Run workflow" button
 #   2. 每 7 天内至少运行一次 / Run at least once every 7 days
+#
+# 🤖 已自动化签到 / Auto check-in enabled:
+#   schedule 每周三、周日自动运行，删除运行历史以重置 7 天计时
+#   Auto-runs every Wednesday & Sunday (UTC 04:00 = 北京 12:00)
 
 on:
+  schedule:
+    - cron: "0 4 * * 0,3"
   workflow_dispatch:
 
 jobs:
