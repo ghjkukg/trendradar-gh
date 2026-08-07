@@ -256,3 +256,10 @@
 
 # 产业政策
 生产力
+
+[MCP / Skills / Agent]
+/[\bMCP\b|\bModel Context Protocol\b]/ => MCP
+/skill|技能包|提示词工程|Prompt/ => AI Skills
+/\bAgent\b|智能体|多智能体|AI代理/ => AI Agent
+/Anthropic|Claude Code|Cursor|Claude|OpenAI Agent/ => 主流Agent
+/\bMCP Server\b|\bMCP工具\b|工具调用/ => MCP生态
